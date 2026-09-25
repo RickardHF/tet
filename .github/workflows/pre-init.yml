@@ -1,0 +1,57 @@
+name: Pre Initialization
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prepare-template-repository:
+    if: github.event.repository.is_template == true && github.event.repository.name != 'Agent-RepoTest' && github.actor != 'github-actions[bot]' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Verify init workflow exists
+        run: |
+          set -euo pipefail
+
+          if [[ ! -f ".github/workflows/init.yml" ]]; then
+            echo "Expected .github/workflows/init.yml to exist before pre-init runs."
+            exit 1
+          fi
+
+      - name: Self-delete pre-init workflow
+        run: |
+          set -euo pipefail
+          rm -f ".github/workflows/pre-init.yml"
+
+      - name: Remove workshop slides
+        run: |
+          set -euo pipefail
+          rm -rf "slides"
+
+      - name: Remove instructor guide
+        run: |
+          set -euo pipefail
+          rm -f "INSTRUCTORS.md"
+
+      - name: Rewrite history to one initial commit
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          default_branch="${{ github.event.repository.default_branch }}"
+
+          git checkout --orphan pre-init-squashed
+          git add -A
+          git commit -m "Initialize repository state"
+          git branch -M "$default_branch"
+          git push --force origin "$default_branch"

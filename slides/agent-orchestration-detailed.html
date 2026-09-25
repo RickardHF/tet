@@ -1,0 +1,1307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Orchestration: From a Labeled Issue to a Reviewed PR | Eficode</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.css" />
+  <link id="theme-dark" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/theme/black.css" />
+  <link id="theme-light" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/theme/white.css" disabled />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+/*
+ * Reveal.js slide styles — Eficode brand theme
+ * for reference by the slides-generator Copilot skill
+ *
+ * Brand palette:
+ *   --eficode-yellow : #FFD100  (primary brand yellow)
+ *   --eficode-dark   : #1A1A1A  (near-black for text / logo background)
+ *   --eficode-orange : #E5A000  (warm accent, used in illustrations)
+ */
+
+/* ── Root variables ── */
+:root {
+  --eficode-yellow: #FFD100;
+  --eficode-dark: #1A1A1A;
+  --eficode-orange: #E5A000;
+  --eficode-gray: #dad9d9;
+
+  /* Accent = Eficode yellow (pops on dark backgrounds) */
+  --accent: #FFD100;
+  --accent-dim: rgba(255, 209, 0, 0.12);
+  --accent-mid: rgba(255, 209, 0, 0.30);
+  --accent-bright: rgba(255, 209, 0, 0.55);
+  --text-muted: rgba(255, 255, 255, 0.75);
+}
+
+/* ── Theme toggle button ── */
+.theme-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 100;
+  background: rgba(128, 128, 128, 0.3);
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  color: inherit;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.theme-toggle:hover {
+  background: rgba(128, 128, 128, 0.5);
+  transform: scale(1.1);
+}
+
+/* ── Light mode overrides ── */
+html.light-mode {
+  /* On light backgrounds use Eficode dark as the accent */
+  --accent: #1A1A1A;
+  --accent-dim: rgba(26, 26, 26, 0.08);
+  --accent-mid: rgba(26, 26, 26, 0.20);
+  --accent-bright: rgba(26, 26, 26, 0.40);
+  --text-muted: rgba(0, 0, 0, 0.60);
+}
+
+html.light-mode .card {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(0, 0, 0, 0.02));
+  border-color: var(--accent-mid);
+}
+
+html.light-mode .card:hover {
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.14), rgba(0, 0, 0, 0.04));
+  border-color: var(--accent-bright);
+  box-shadow: 0 10px 30px rgba(26, 26, 26, 0.12);
+}
+
+html.light-mode .card p,
+html.light-mode .demo-context {
+  color: var(--text-muted);
+}
+
+html.light-mode .agenda-list li {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(0, 0, 0, 0.02));
+  border-left-color: var(--eficode-yellow);
+}
+
+html.light-mode .code-block {
+  background: rgba(240, 240, 240, 0.9);
+  border-color: var(--accent-mid);
+  color: #24292e;
+}
+
+html.light-mode .code-block .comment {
+  color: #6a737d;
+}
+
+html.light-mode .code-block .keyword {
+  color: #d73a49;
+}
+
+html.light-mode .code-block .string {
+  color: #032f62;
+}
+
+html.light-mode .code-block .property {
+  color: #005cc5;
+}
+
+html.light-mode .file-tree {
+  background: rgba(240, 240, 240, 0.8);
+  border-color: var(--accent-mid);
+}
+
+html.light-mode .file-tree .folder {
+  color: var(--eficode-orange);
+}
+
+html.light-mode .file-tree .highlight {
+  color: #22863a;
+}
+
+html.light-mode .badge {
+  background: var(--eficode-yellow);
+  color: #1a1a1a;
+}
+
+html.light-mode .compare-table th {
+  background: linear-gradient(135deg, var(--eficode-yellow), rgba(0, 0, 0, 0.05));
+  border-color: var(--accent-bright);
+  color: var(--eficode-dark);
+}
+
+html.light-mode .compare-table td {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+html.light-mode .compare-table tr:hover td {
+  background: var(--accent-dim);
+}
+
+html.light-mode .highlight-box {
+  background: linear-gradient(135deg, rgba(255, 209, 0, 0.15), rgba(0, 0, 0, 0.02));
+  border-color: var(--eficode-yellow);
+}
+
+html.light-mode .workflow-step {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(0, 0, 0, 0.02));
+  border-color: var(--accent-mid);
+}
+
+html.light-mode .workflow-arrow {
+  color: var(--eficode-orange);
+}
+
+html.light-mode .demo-container video {
+  border-color: var(--accent-mid);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+html.light-mode .qa-icon {
+  color: var(--eficode-yellow);
+}
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  text-transform: none;
+}
+
+/* ── Card grids ── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 10px;
+  text-align: left;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  padding: 10px;
+  text-align: left;
+}
+
+.card {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(255, 255, 255, 0.05));
+  border-radius: 8px;
+  padding: 20px;
+  border: 2px solid var(--accent-mid);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.25), rgba(255, 255, 255, 0.1));
+  border-color: var(--accent-bright);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(74, 158, 255, 0.3);
+}
+
+.card i {
+  font-size: 1.6em;
+  display: block;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.card h4 {
+  margin: 8px 0 6px 0;
+  font-size: 0.75em;
+}
+
+.card p {
+  font-size: 0.55em;
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.card-center {
+  text-align: center;
+}
+
+/* ── Agenda list ── */
+.agenda-list {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.agenda-list li {
+  padding: 12px 20px;
+  margin: 8px 0;
+  background: linear-gradient(135deg, var(--accent-dim), rgba(255, 255, 255, 0.03));
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.agenda-list li i {
+  color: var(--accent);
+  width: 24px;
+  text-align: center;
+  padding-right: inherit;
+}
+
+.agenda-list li .time {
+  margin-left: auto;
+  font-size: 0.75em;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* ── Code blocks ── */
+.code-block {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--accent-mid);
+  border-radius: 8px;
+  padding: 18px 22px;
+  text-align: left;
+  font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: 0.48em;
+  line-height: 1.6;
+  overflow-x: auto;
+  margin: 15px 0;
+  white-space: pre;
+  word-wrap: normal;
+
+}
+
+.code-block .comment {
+  color: #6a9955;
+}
+
+.code-block .keyword {
+  color: #569cd6;
+}
+
+.code-block .string {
+  color: #ce9178;
+}
+
+.code-block .property {
+  color: #9cdcfe;
+}
+
+/* ── File tree ── */
+.file-tree {
+  text-align: left;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.55em;
+  line-height: 1.8;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--accent-mid);
+  border-radius: 8px;
+  padding: 18px 25px;
+  display: inline-block;
+}
+
+.file-tree .folder {
+  color: var(--accent);
+}
+
+.file-tree .file {
+  color: #e0e0e0;
+}
+
+.file-tree .highlight {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* ── Video slide ── */
+.demo-container {
+  text-align: center;
+}
+
+.demo-container video {
+  max-width: 85%;
+  max-height: 55vh;
+  border-radius: 8px;
+  border: 2px solid var(--accent-mid);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.demo-context {
+  font-size: 0.6em;
+  color: var(--text-muted);
+  margin-top: 12px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Comparison table ── */
+.compare-table {
+  font-size: 0.55em;
+  width: 90%;
+  margin: 15px auto;
+  border-collapse: collapse;
+}
+
+.compare-table th {
+  background: linear-gradient(135deg, var(--accent-mid), rgba(255, 255, 255, 0.1));
+  padding: 12px 15px;
+  border: 1px solid var(--accent-bright);
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.compare-table td {
+  padding: 10px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.compare-table tr:hover td {
+  background: var(--accent-dim);
+}
+
+/* ── Workflow arrows ── */
+.workflow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 25px 0;
+}
+
+.workflow-step {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(255, 255, 255, 0.05));
+  border: 2px solid var(--accent-mid);
+  border-radius: 8px;
+  padding: 15px 20px;
+  text-align: center;
+  min-width: 120px;
+}
+
+.workflow-step i {
+  display: block;
+  font-size: 1.3em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.workflow-step span {
+  font-size: 0.65em;
+}
+
+.workflow-arrow {
+  font-size: 1.5em;
+  color: var(--accent);
+}
+
+/* ── Badge / pill ── */
+.badge {
+  display: inline-block;
+  background: var(--accent-mid);
+  color: #fff;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.55em;
+  margin: 3px;
+}
+
+/* ── QA slide ── */
+.qa-icon {
+  font-size: 4em;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+
+/* ── Key point highlight ── */
+.highlight-box {
+  background: linear-gradient(135deg, rgba(255, 209, 0, 0.18), rgba(255, 255, 255, 0.04));
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin: 12px auto;
+  max-width: 800px;
+  text-align: center;
+}
+
+.highlight-box p {
+  font-size: 0.5em;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════════
+   Eficode Title Slide
+   Uses data-background-color="#FFD100" on the <section>.
+   Layout: logo pinned top-left, title text bottom-left,
+   illustration filling the right half.
+   ══════════════════════════════════════════════════════ */
+
+.title-slide-layout {
+  background-color: var(--eficode-yellow);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.title-slide-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 30px 50px 50px;
+  position: relative;
+}
+
+.eficode-logo {
+  position: sticky;
+  top: 20px;
+  left: 50px;
+  height: 65px;
+  width: fit-content;
+}
+
+.title-heading {
+  font-size: 1.5em !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  color: var(--eficode-dark) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 0 30px 0 !important;
+  text-align: left !important;
+}
+
+.reveal .title-series {
+  font-size: 0.65em !important;
+  font-weight: 700 !important;
+  color: var(--eficode-dark) !important;
+  margin: 0 0 6px 0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+.reveal .title-url {
+  font-size: 0.55em !important;
+  font-weight: 400 !important;
+  color: var(--eficode-dark) !important;
+  margin: 0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+.title-slide-right {
+  background: var(--eficode-gray);
+  display: flex;
+  clip-path: polygon(27% 0, 100% 0, 100% 100%, 43% 100%, 0 65%);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.title-illustration {
+  max-height: 90%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* ── Closing Slide ── */
+.closing-slide-layout {
+  display: grid;
+  grid-template-columns: 56% 44%;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.closing-slide-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 30px 40px 50px;
+  text-align: left;
+  position: relative;
+  z-index: 1;
+}
+
+.closing-thank-you {
+  font-size: 1.6em !important;
+  font-weight: 900 !important;
+  text-align: left !important;
+  margin: 0 !important;
+  text-transform: none !important;
+}
+
+.closing-slide-left .contact-list {
+  list-style: none;
+  padding: 50px 0px 50px 0px;
+  margin: 0px 0px 0px 35px;
+}
+
+.closing-slide-left .contact-list li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.65em;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.closing-slide-left .contact-list li i {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  background: rgba(0, 0, 0, 0.10);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+}
+
+.closing-cta {
+  background: var(--eficode-yellow);
+  color: var(--eficode-dark);
+  padding: 5px 15px;
+  border-radius: 4px;
+  font-size: 0.4em;
+  font-weight: 300;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.closing-cta strong {
+  font-weight: 800;
+}
+
+.closing-slide-right {
+  position: relative;
+  overflow: hidden;
+  background: var(--eficode-yellow);
+  clip-path: polygon(27% 0, 100% 0, 100% 100%, 43% 100%, 0 65%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.closing-slide-right .title-illustration {
+  max-height: 82%;
+  max-width: 90%;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+.closing-eficode-logo {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  height: 52px;
+  width: auto;
+  z-index: 2;
+}
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- PATTERN: Eficode Title Slide -->
+      <section data-background-color="#FFD100">
+        <div class="title-slide-layout">
+          <div class="title-slide-left">
+            <img src="assets/eficode-logo.png" alt="Eficode" class="eficode-logo" />
+            <h1 class="title-heading">Agent Orchestration</h1>
+            <p class="title-series">Rickard Hole Falck &amp; Ahmed Magdy | Eficode</p>
+          </div>
+          <div class="title-slide-right">
+            <img src="assets/title-illustration.png" alt="" class="title-illustration" />
+          </div>
+        </div>
+        <aside class="notes">
+          Audience: engineers who will read, extend, and evaluate plan-implement.yml. Introduce the
+          presentation as a direct walkthrough of agent orchestration in this repository.
+        </aside>
+      </section>
+
+      <!-- PATTERN: Vertical Group - Why Orchestrate -->
+      <section>
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2>What is AI agent orchestration?</h2>
+          <p><small>Press ↓ for details</small></p>
+          <ul style="font-size: 0.62em; text-align: left; line-height: 1.45">
+            <li>Orchestration is <strong>how multiple agents coordinate their work in a shared environment</strong>: when they run, how tasks are sequenced, and how outputs flow between steps.</li>
+            <li>Without orchestration you get "prompt-to-prompt daisy chains" — brittle, unobservable, and unowned.</li>
+            <li>With orchestration, agents become <strong>contributors</strong> to a system that has plans, checks, evidence, and reviewers.</li>
+            <li>In this repo, the orchestrator is <strong>GitHub Actions</strong>. The unit of work is a <strong>labeled issue</strong>. The output is a <strong>draft PR</strong> with a machine-checked plan.</li>
+          </ul>
+          <p style="font-size: 0.3em">
+            <strong>Reference:</strong>
+            <a href="https://learn.microsoft.com/en-us/training/modules/multi-agent-systems-orchestration/3-agent-orchestration-github-workflows">Learn — Agent orchestration in GitHub workflows</a>
+          </p>
+          <aside class="notes">
+            Orchestration is the coordination layer: when agents run, how work is sequenced, and how
+            outputs move between stages. In this repository GitHub Actions is the orchestrator, a labeled
+            issue is the unit of work, and a draft pull request is the result.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Content Slide -->
+        <section>
+          <h3>Why not a single agent?</h3>
+          <ul style="font-size: 0.68em; text-align: left; line-height: 1.55">
+            <li><strong>Specialization:</strong> one agent per role beats one megaprompt (planner ≠ risk reviewer ≠ implementer).</li>
+            <li><strong>Scalability &amp; maintainability:</strong> agents can be added, tested, and swapped independently.</li>
+            <li><strong>Safety:</strong> separating "think" from "act" lets you apply <strong>least privilege per job</strong>.</li>
+            <li><strong>Observability:</strong> each agent leaves an artifact you can inspect after the fact.</li>
+            <li><strong>Trade-off:</strong> coordination cost. Orchestration is what makes that cost worth paying.</li>
+          </ul>
+          <aside class="notes">
+            Explain why role specialization improves maintainability, safety, and observability. The cost
+            is coordination; orchestration is the mechanism that makes that cost worthwhile.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Comparison Table -->
+        <section>
+          <h3>Orchestration pattern catalog</h3>
+          <p style="font-size: 0.5em">The community has converged on ~5 patterns. Recognize them so you pick the right one:</p>
+          <table class="compare-table" style="font-size: 0.45em">
+            <thead>
+              <tr><th>Pattern</th><th>Mechanism</th><th>Good for</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Sequential</strong></td><td>Output of agent A becomes input to agent B, in a fixed order</td><td>Pipelines: plan → enrich → verify → act</td></tr>
+              <tr><td><strong>Concurrent</strong></td><td>Same task broadcast to N agents in parallel; results aggregated</td><td>Independent analyses, ensemble decisions</td></tr>
+              <tr><td><strong>Group chat</strong></td><td>Agents talk in a shared thread coordinated by a manager</td><td>Brainstorming, maker/checker with human-in-loop</td></tr>
+              <tr><td><strong>Handoff</strong></td><td>Each agent decides whether to keep the task or transfer control</td><td>Dynamic routing when the right expert isn't known</td></tr>
+              <tr><td><strong>Magentic</strong></td><td>A manager builds and refines a ledger of subgoals as it goes</td><td>Open-ended tasks with no predetermined plan</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.3em">
+            <strong>Reference:</strong>
+            <a href="https://learn.microsoft.com/en-us/training/modules/agent-orchestration-patterns/">Learn — Agent orchestration patterns</a>
+          </p>
+          <aside class="notes">
+            Present the five orchestration patterns exactly as shown. The purpose is recognition: choose
+            the pattern that matches the shape of the work rather than adding flexibility by default.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Workflow / Process Arrows -->
+        <section>
+          <h3>Which patterns show up in the workflow?</h3>
+          <p style="font-size: 0.6em">Two patterns, layered:</p>
+          <div class="grid-2">
+            <div class="card">
+              <i class="fas fa-arrow-right-long"></i>
+              <h4>1. Sequential (outer)</h4>
+              <p><code>prepare</code> → planning stage → <code>plan_merger</code> → <code>implement*</code>. The workflow is a deterministic pipeline; each stage depends on the previous one.</p>
+            </div>
+            <div class="card">
+              <i class="fas fa-code-branch"></i>
+              <h4>2. Concurrent / fan-out–fan-in (inner)</h4>
+              <p><code>spec_analyzer</code> and <code>risk_reviewer</code> run in parallel from the same input and are joined by <code>plan_merger</code>.</p>
+            </div>
+          </div>
+          <div class="highlight-box">
+            <p>This is the <strong>fan-out / fan-in pattern</strong>: a widely recommended best practice for composing analyze / review / merge phases without letting them collide.</p>
+          </div>
+          <p style="font-size: 0.3em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/multi-agent-systems-orchestration/3-agent-orchestration-github-workflows">Learn — Agent orchestration in GitHub workflows</a>
+          </p>
+          <aside class="notes">
+            The outer workflow is sequential. Inside the planning stage, two independent analyses run
+            concurrently and join through a deterministic merge step.
+          </aside>
+        </section>
+      </section>
+
+      <!-- PATTERN: Vertical Group - Reference Pipeline -->
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2 style="font-size: 1.2em; margin: 0 0 5px">The pipeline at a glance</h2>
+          <div class="workflow" style="margin: 2px 0">
+            <div class="workflow-step" style="padding: 5px 10px; min-width: 260px"><span>issues.labeled <code>copilot:plan-and-implement</code></span></div>
+            <span class="workflow-arrow">→</span>
+            <div class="workflow-step" style="padding: 5px 10px; min-width: 100px"><span>prepare</span></div>
+          </div>
+          <div class="grid-2" style="max-width: 620px; margin: 0 auto; gap: 8px; padding: 2px">
+            <div class="card card-center" style="padding: 5px"><h4 style="font-size: 0.5em; margin: 2px">spec_analyzer</h4><p style="font-size: 0.34em">goal / scope / steps / mitigations / rollback</p></div>
+            <div class="card card-center" style="padding: 5px"><h4 style="font-size: 0.5em; margin: 2px">risk_reviewer</h4><p style="font-size: 0.34em">low / medium / high</p></div>
+          </div>
+          <div style="font-size: 0.7em; color: var(--accent); margin: 0">↓</div>
+          <div class="workflow-step" style="max-width: 190px; margin: 0 auto; padding: 5px 10px">
+            <span>plan_merger</span>
+          </div>
+          <div style="font-size: 0.7em; color: var(--accent); margin: 0">↓</div>
+          <div class="grid-2" style="max-width: 620px; margin: 0 auto; gap: 8px; padding: 2px">
+            <div class="card card-center" style="padding: 5px"><h4 style="font-size: 0.48em; margin: 2px">risk = low</h4><p style="font-size: 0.34em">implement_auto</p></div>
+            <div class="card card-center" style="padding: 5px"><h4 style="font-size: 0.48em; margin: 2px">risk = medium/high</h4><p style="font-size: 0.34em">implement (<code>approval-required</code>)</p></div>
+          </div>
+          <div class="workflow" style="margin: 2px 0">
+            <div class="workflow-step" style="padding: 5px 10px"><span>Draft PR → ready for review</span></div>
+            <span class="workflow-arrow">→</span>
+            <div class="workflow-step" style="padding: 5px 10px"><span>Plan Gate</span></div>
+            <span class="workflow-arrow">→</span>
+            <div class="workflow-step" style="padding: 5px 10px"><span>Human review &amp; merge</span></div>
+          </div>
+          <ul style="font-size: 0.31em; text-align: left; line-height: 1.25; margin: 4px 0">
+            <li>The pipeline turns a single label event into a governed sequence: automated planning, machine-enforced routing, and a human gate before merge.</li>
+            <li>Every arrow is either an artifact handoff (<code>spec.json</code>, <code>risk.json</code>, <code>plan.json</code>) or a policy decision (risk gate, approval environment, Plan Gate).</li>
+          </ul>
+          <p style="font-size: 0.22em; margin: 2px">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/docs/agent-orchestration.md">Repo doc — agent-orchestration.md</a>
+          </p>
+          <aside class="notes">
+            Follow the diagram from the labeled issue through prepare, parallel planning, deterministic
+            merge, risk-based routing, the draft pull request, Plan Gate, and human review.
+          </aside>
+        </section>
+
+      <!-- PATTERN: Vertical Group - Planning Practices -->
+      <section>
+        <!-- PATTERN: Workflow / Process Arrows -->
+        <section>
+          <h2>Role specialization: one agent, one job</h2>
+          <p><small>Press ↓ for details</small></p>
+          <ul style="font-size: 0.62em; text-align: left; line-height: 1.45">
+            <li>Give each agent a <strong>narrow role with typed inputs and outputs</strong> so it can be tested, swapped, or upgraded in isolation.</li>
+            <li>Separate "think" agents (analyze, review) from "act" agents (implement, deploy) — different permissions, different failure modes.</li>
+            <li>Explicit handoffs between roles make the system observable: every stage leaves an artifact you can diff against later.</li>
+            <li>The alternative — one megaprompt doing everything — hides reasoning and makes least-privilege impossible.</li>
+          </ul>
+          <div class="highlight-box">
+            <p><strong>In this repo:</strong> <code>spec_analyzer</code> emits {goal, scope, steps, mitigations, rollback}; <code>risk_reviewer</code> emits {risk}; <code>implementer</code> runs only after the merged plan and only under approval.</p>
+          </div>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/multi-agent-systems-orchestration/7-scale-failure-recovery">Learn — Scale and failure recovery</a> ·
+            <a href="https://github.com/resources/articles/what-is-ai-agent-orchestration">Article — What is AI agent orchestration?</a>
+          </p>
+          <aside class="notes">
+            Each agent has one narrow job and a typed handoff. This makes roles independently testable,
+            separates think permissions from act permissions, and leaves observable artifacts.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Workflow / Process Arrows -->
+        <section>
+          <h3>Good practice #1: a single, linkable task contract</h3>
+          <ul style="font-size: 0.66em; text-align: left; line-height: 1.5">
+            <li>Every agent run needs a <strong>stable, human-authored input</strong> it can be traced back to — not an ad-hoc chat prompt.</li>
+            <li>The task contract has to be <strong>reproducible</strong>: same input, same run, same evidence, months later.</li>
+            <li>Downstream stages should read the contract from one canonical location, not paraphrase it forward.</li>
+            <li><strong>Anti-pattern avoided:</strong> agents acting on unlogged instructions no reviewer can retrieve.</li>
+          </ul>
+          <div class="highlight-box">
+            <p><strong>In this repo:</strong> <code>prepare</code> calls <code>gh issue view</code> and uploads <code>issue.md</code> as an artifact; every downstream job reads that artifact, so the labeled issue is the single source of truth.</p>
+          </div>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/design-agent-architecture-integration/3-inputs-outputs-success-criteria">Learn — Inputs, outputs, and success criteria</a>
+          </p>
+          <aside class="notes">
+            The issue is the stable, human-authored task contract. prepare captures it once as issue.md,
+            and downstream jobs reuse that same canonical input.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Card Grid - 3 Columns -->
+        <section>
+          <h3>Good practice #2: fan-out / fan-in for planning</h3>
+          <ul style="font-size: 0.66em; text-align: left; line-height: 1.5">
+            <li>When analyses are independent, run them <strong>in parallel</strong> — don't serialize what doesn't have to be sequential.</li>
+            <li>Give each parallel agent <strong>its own output slot</strong> so they can't overwrite each other or race on shared state.</li>
+            <li>Join with a <strong>separate, deterministic merge step</strong> (not another LLM call) so the join is auditable and cheap to re-run.</li>
+            <li>This is the exam-tested fan-out / fan-in shape for "analyze → decide → act" pipelines.</li>
+          </ul>
+          <div class="highlight-box">
+            <p><strong>In this repo:</strong> <code>spec_analyzer</code> and <code>risk_reviewer</code> both <code>needs: prepare</code> and write to different artifacts (<code>spec</code>, <code>risk</code>); <code>plan_merger</code> then <code>needs: [spec_analyzer, risk_reviewer]</code> and produces <code>plan.json</code> deterministically.</p>
+          </div>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/multi-agent-systems-orchestration/3-agent-orchestration-github-workflows">Learn — Agent orchestration in GitHub workflows</a>
+          </p>
+          <aside class="notes">
+            Independent analyses run in parallel, write separate artifacts, and join in deterministic
+            code. This avoids unnecessary serialization and shared-state collisions.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Content Slide -->
+        <section>
+          <h3>Good practice #3: inspectable, structured plans</h3>
+          <ul style="font-size: 0.66em; text-align: left; line-height: 1.5">
+            <li>Force the plan into a <strong>fixed schema</strong> (goal, scope, steps, risks, rollback) so intent is machine-readable, not buried in prose.</li>
+            <li><strong>Validate before you trust</strong> — schema-check the model's output before letting anything downstream act on it.</li>
+            <li>Structured plans are the substrate every governance control builds on: risk gating, required-section checks, and after-the-fact audits all read the same fields.</li>
+            <li><strong>Anti-pattern avoided:</strong> "trust me" PRs where intent lives only in the diff and the review comment.</li>
+          </ul>
+          <div class="highlight-box">
+            <p><strong>In this repo:</strong> <code>spec_analyzer</code> emits JSON with a fixed schema, <code>jq</code> validates it, and <code>open-agent-pr</code> renders it into the PR body using <code>plan-template.md</code>.</p>
+          </div>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/design-agent-architecture-integration/5-pull-request-governance-controls">Learn — Pull request governance controls</a>
+          </p>
+          <aside class="notes">
+            A fixed schema turns intent into data that later controls can validate and render. The model's
+            output is not trusted until jq parses it successfully.
+          </aside>
+        </section>
+      </section>
+
+      <!-- PATTERN: Vertical Group - Plan-first Governance -->
+      <section>
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2>Good practice #4: risk-based autonomy</h2>
+          <p><small>Press ↓ for details</small></p>
+          <div class="grid-2" style="gap: 12px; padding: 0">
+            <div>
+              <ul style="font-size: 0.48em; text-align: left; line-height: 1.45">
+                <li>Not every action deserves the same level of trust — <strong>let risk drive how much autonomy an agent gets</strong>.</li>
+                <li>Risk must be a <strong>machine-readable signal</strong> (e.g. <code>low | medium | high</code>) so routing can be enforced by the platform, not by an agent choosing to be cautious.</li>
+                <li><strong>Default to caution:</strong> unknown, malformed, or missing risk should be treated as high risk.</li>
+                <li>Low-risk work flows automatically; higher risk gets a human before it merges. Friction ends up where it matters.</li>
+              </ul>
+            </div>
+            <div>
+              <p style="font-size: 0.4em; text-align: left"><strong>In this repo:</strong> <code>plan_merger</code> normalizes <code>risk</code>, defaults to <code>high</code> on anything unexpected, and the two implementer jobs branch on it:</p>
+              <div class="code-block" style="font-size: 0.33em; margin: 5px 0">implement:
+  needs: plan_merger
+  environment: approval-required
+  if: ${{ needs.plan_merger.outputs.risk != 'low' }}
+
+implement_auto:
+  needs: plan_merger
+  if: ${{ needs.plan_merger.outputs.risk == 'low' }}</div>
+            </div>
+          </div>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/governance-guardrails-operations/2-define-risk-based-autonomy">Learn — Define risk-based autonomy</a>
+          </p>
+          <aside class="notes">
+            Risk is a machine-readable routing signal. plan_merger normalizes it and defaults unexpected
+            values to high, then GitHub Actions selects either automatic implementation or the approval-gated job.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Card Grid - 3 Columns -->
+        <section>
+          <h3>Good practice #5: approval gates through the platform</h3>
+          <ul style="font-size: 0.68em; text-align: left; line-height: 1.5">
+            <li>Human-in-the-loop should be enforced by the <strong>platform</strong>, not by an agent's good manners.</li>
+            <li>Reuse the <strong>same gating mechanism you already trust</strong> for deployments and protected secrets — don't invent an agent-only approval story.</li>
+            <li>Placing the gate on the <em>implementation</em> stage (not on planning) keeps thinking cheap and acting supervised.</li>
+            <li>Combined with a risk gate, this puts humans <strong>only where the risk warrants it</strong> — low-risk work still moves without friction.</li>
+          </ul>
+          <div class="highlight-box">
+            <p><strong>In this repo:</strong> the <code>implement</code> job runs under <code>environment: approval-required</code>, which blocks it in the GitHub Environments UI until a reviewer approves.</p>
+          </div>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/design-agent-architecture-integration/6-reliable-workflows">Learn — Reliable workflows</a>
+          </p>
+          <aside class="notes">
+            The approval gate is enforced by GitHub Environments, not by agent behavior. It is placed on
+            implementation so planning remains cheap while action is supervised where risk requires it.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Workflow / Process Arrows -->
+        <section>
+          <h3>Good practice #6: least privilege, per job</h3>
+          <ul style="font-size: 0.7em; text-align: left; line-height: 1.55">
+            <li><strong>Default to no permissions.</strong> Every scope has to be granted explicitly.</li>
+            <li>Grant write scopes only to the <strong>specific job that needs them</strong>, and only at the stage where it needs them.</li>
+            <li>"Think" agents get read-only tokens; "act" agents get write tokens — and only after approval.</li>
+            <li><strong>Anti-pattern avoided:</strong> a single over-scoped workflow token that lets any step do anything a compromised prompt asks for.</li>
+          </ul>
+          <div class="highlight-box">
+            <p><strong>In this repo:</strong> the workflow header sets <code>permissions: {}</code>; planning jobs get <code>contents: read</code> + <code>copilot-requests: write</code>; implement jobs add <code>contents: write</code> + <code>pull-requests: write</code>.</p>
+          </div>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/governance-guardrails-operations/9-summary">Learn — Governance, guardrails, and operations (summary)</a>
+          </p>
+          <aside class="notes">
+            The workflow starts with no permissions and grants each job only what it needs. Planning jobs
+            can inspect and call Copilot but cannot push; write capabilities arrive at implementation.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Code Block -->
+        <section>
+          <h3 style="font-size: 1.05em; margin: 0 0 5px">Good practice #7: layered prompt-injection defenses</h3>
+          <p style="font-size: 0.45em; margin: 5px">Untrusted user content is a real attack surface. Assume <strong>any single layer will be bypassed</strong> and stack three:</p>
+          <ul style="font-size: 0.48em; text-align: left; line-height: 1.3; margin: 7px 0">
+            <li><strong>Structural separation</strong> — mark untrusted content clearly (e.g. <code>&lt;ISSUE&gt;</code> tags) and tell the model to ignore directives inside.</li>
+            <li><strong>Tool allowlists</strong> — give planning agents read-only capabilities so a successful injection can't exfiltrate or write.</li>
+            <li><strong>Output schema validation</strong> — re-parse the model's output against a known schema before trusting it downstream.</li>
+            <li>Together, these make a single successful injection insufficient to cause harm.</li>
+          </ul>
+          <div class="highlight-box" style="padding: 8px 12px; margin: 8px auto">
+            <p style="font-size: 0.43em"><strong>In this repo:</strong> <code>copilot-json-task</code> wraps the issue body in <code>&lt;ISSUE&gt;</code> tags, restricts Copilot to <code>--available-tools='view,glob,grep'</code>, and re-parses the JSON slice with <code>jq</code>.</p>
+          </div>
+          <p style="font-size: 0.22em; margin: 2px">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/aaai-design-advanced-prompt-production-agents/3-implement-prompt-injection-defenses">Learn — Implement prompt injection defenses</a>
+          </p>
+          <aside class="notes">
+            No single prompt-injection defense is assumed sufficient. Structural separation, read-only
+            tools, and output validation are stacked so that one successful bypass is not enough to cause harm.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Workflow / Process Arrows -->
+        <section>
+          <h3 style="font-size: 1.1em; margin: 0 0 5px">Good practice #8: bounded changeset (contributor model)</h3>
+          <p style="font-size: 0.46em; margin: 5px">Treat every agent contribution the way you'd treat a junior contributor's PR. Each change should be:</p>
+          <ul style="font-size: 0.45em; text-align: left; line-height: 1.3; margin: 7px 0">
+            <li><strong>Understandable</strong> — the intent is stated up front.</li>
+            <li><strong>Bounded</strong> — scoped to one linkable task.</li>
+            <li><strong>Reviewable</strong> — opens as a <strong>draft PR</strong> so review can begin before implementation lands.</li>
+            <li><strong>Policy-compliant</strong> — passes the same required checks as any human PR.</li>
+            <li><strong>Reconstructable</strong> — the branch, commits, and artifacts can be replayed from the task contract.</li>
+            <li><strong>Race-free</strong> — concurrency is scoped so two runs for the same task can't fight over the same branch.</li>
+          </ul>
+          <div class="highlight-box" style="padding: 8px 12px; margin: 8px auto">
+            <p style="font-size: 0.48em"><strong>In this repo:</strong> <code>open-agent-pr</code> opens a draft PR on <code>agent-plan/issue-&lt;n&gt;-&lt;run_id&gt;</code>, and a concurrency group keyed on the issue number with <code>cancel-in-progress: false</code> prevents races.</p>
+          </div>
+          <p style="font-size: 0.22em; margin: 2px">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/foundations-agentic-ai/6-apply-contributor-model-agent-generated-work">Learn — Apply the contributor model to agent-generated work</a>
+          </p>
+          <aside class="notes">
+            Treat the agent as a contributor. The change is attached to one issue, opens as a draft PR,
+            follows repository policy, can be reconstructed, and cannot race another run for the same issue.
+          </aside>
+        </section>
+      </section>
+
+      <!-- PATTERN: Vertical Group - Safety -->
+      <section>
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2 style="font-size: 1.15em; margin: 0 0 5px">Good practice #9: turn the plan template into an enforced check</h2>
+          <p style="margin: 0"><small>Press ↓ for details</small></p>
+          <ul style="font-size: 0.52em; text-align: left; line-height: 1.35; margin: 10px 0">
+            <li>A PR template is <strong>a suggestion</strong>; a required status check is <strong>a contract</strong>.</li>
+            <li>Promote plan sections (Goal, Scope, Steps, Success criteria, Risks, Rollback, Evidence, Review checklist) to a required check so they can't be silently dropped.</li>
+            <li><strong>Treat the PR body as data</strong>, never as executable string — a crafted body must not be able to run code in CI.</li>
+            <li><strong>Anti-pattern avoided:</strong> template drift where later PRs quietly lose the audit fields the earlier ones had.</li>
+          </ul>
+          <div class="highlight-box" style="padding: 10px 15px; margin: 10px auto">
+            <p style="font-size: 0.58em"><strong>In this repo:</strong> <code>plan-gate.yml</code> runs on every PR to <code>main</code>, reads <code>PR_BODY</code> as an env var, and fails if any required section is missing.</p>
+          </div>
+          <p style="font-size: 0.23em; margin: 3px">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/design-agent-architecture-integration/5-pull-request-governance-controls">Learn — Pull request governance controls</a>
+          </p>
+          <aside class="notes">
+            A template only suggests structure; a status check enforces it. The PR body is handled as
+            data, and the workflow checks that all required plan sections are present.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Card Grid - 2 Columns -->
+        <section>
+          <h3 style="font-size: 1.1em; margin: 0 0 5px">Good practice #10: audit trail by construction</h3>
+          <p style="font-size: 0.47em; margin: 5px">Design the pipeline so the evidence you'd need after an incident <strong>exists automatically</strong>, not as a follow-up chore:</p>
+          <ul style="font-size: 0.47em; text-align: left; line-height: 1.3; margin: 7px 0">
+            <li>One <strong>artifact per stage</strong>, so you can replay each agent's inputs and outputs.</li>
+            <li>A <strong>stable link</strong> from the PR back to the workflow run that produced it.</li>
+            <li>The changeset <strong>anchored to the task</strong> before any code is written (e.g. an initial empty commit).</li>
+            <li>Every mandated check recorded on the PR itself.</li>
+            <li>When something regresses later, the post-mortem is about the <strong>system</strong>, not the agent.</li>
+          </ul>
+          <div class="highlight-box" style="padding: 8px 12px; margin: 8px auto">
+            <p style="font-size: 0.43em"><strong>In this repo:</strong> each stage uploads its artifact (<code>issue</code>, <code>spec</code>, <code>risk</code>, <code>plan</code>); <code>open-agent-pr</code> seeds the branch with a <code>chore: start agent plan for issue #N</code> commit; <code>implement-agent-plan</code> adds the implementer commit; the Plan Gate check is recorded on the PR.</p>
+          </div>
+          <p style="font-size: 0.22em; margin: 2px">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/docs/agent-orchestration.md">Repo doc — agent-orchestration.md</a>
+          </p>
+          <aside class="notes">
+            The evidence needed after an incident should already exist: stage artifacts, a run link,
+            task-anchored commits, and checks recorded on the pull request.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Card Grid - 2 Columns -->
+        <section>
+          <h3>Six-item accountability checklist</h3>
+          <p style="font-size: 0.52em">A healthy agent workflow reduces to six requirements. Ours satisfies each:</p>
+          <table class="compare-table" style="font-size: 0.48em">
+            <thead>
+              <tr><th>Requirement</th><th>Where it lives in this repo</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Stated goal</td><td>Issue linked from PR title/body</td></tr>
+              <tr><td>Inspectable plan</td><td><code>plan.json</code> artifact + rendered PR body</td></tr>
+              <tr><td>Bounded changeset</td><td><code>agent-plan/issue-&lt;n&gt;-&lt;run_id&gt;</code> branch</td></tr>
+              <tr><td>Automated evidence</td><td>Workflow run URL + uploaded artifacts</td></tr>
+              <tr><td>Human judgment</td><td><code>approval-required</code> environment + PR review + Plan Gate</td></tr>
+              <tr><td>Clear outcome</td><td>Merge, revert of the agent commit, or issue re-labeled for escalation</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/foundations-agentic-ai/">Learn — Foundations of agentic AI on GitHub</a>
+          </p>
+          <aside class="notes">
+            Walk through the six accountability requirements and point to the concrete repository
+            mechanism that satisfies each one.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Comparison Table -->
+        <section>
+          <h3>When would we pick a different pattern?</h3>
+          <ul style="font-size: 0.65em; text-align: left; line-height: 1.55">
+            <li><strong>Handoff</strong> — if we didn't know upfront whether the issue needed a <code>spec_analyzer</code> at all (e.g. some issues are documentation-only). We'd let a triage agent decide who to transfer control to.</li>
+            <li><strong>Group chat</strong> — if planning benefited from a maker/checker debate rather than one pass of "analyze + rate."</li>
+            <li><strong>Magentic</strong> — if the goal itself wasn't known ("investigate this outage") and a manager needed to build a ledger of subgoals dynamically.</li>
+            <li><strong>Rule of thumb:</strong> use sequential when order is fixed, concurrent when work is independent, and only reach for group-chat / handoff / Magentic when the extra flexibility earns its complexity.</li>
+          </ul>
+          <p style="font-size: 0.3em">
+            <strong>Reference:</strong>
+            <a href="https://learn.microsoft.com/en-us/training/modules/agent-orchestration-patterns/">Learn — Agent orchestration patterns</a>
+          </p>
+          <aside class="notes">
+            Use handoff for dynamic routing, group chat for productive debate, and Magentic for open-ended
+            goals. Prefer sequential and concurrent patterns when the work shape is already known.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Comparison Table -->
+        <section>
+          <h3>Anti-patterns and their generic cures</h3>
+          <table class="compare-table" style="font-size: 0.48em">
+            <thead>
+              <tr><th>Anti-pattern</th><th>Generic cure</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Planless execution</td><td>Enforced structured plan + required plan check</td></tr>
+              <tr><td>Over-permissioned agents</td><td>Per-job permissions + gated "act" stage</td></tr>
+              <tr><td>Hidden reasoning</td><td>Per-stage artifacts (<code>spec</code>, <code>risk</code>, <code>plan</code>) uploaded automatically</td></tr>
+              <tr><td>Blind trust in automation</td><td>Risk-based routing + human review before merge</td></tr>
+              <tr><td>Prompt injection via untrusted text</td><td>Structural separation + read-only tool allowlist + schema check</td></tr>
+              <tr><td>Racing agents on the same task</td><td>Concurrency group keyed on the task identifier</td></tr>
+            </tbody>
+          </table>
+          <div class="highlight-box">
+            <p><strong>In this repo:</strong> each row is realized by the corresponding practice in <code>plan-implement.yml</code> and <code>plan-gate.yml</code>.</p>
+          </div>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/foundations-agentic-ai/5-identify-risks-traceability">Learn — Identify risks and traceability</a>
+          </p>
+          <aside class="notes">
+            Pair each anti-pattern with its generic cure. The repo's workflows implement all six through
+            structured plans, scoped permissions, artifacts, risk routing, injection defenses, and concurrency.
+          </aside>
+        </section>
+      </section>
+
+      <!-- PATTERN: Vertical Group - Session Insight -->
+      <section>
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2>Closing the loop: <code>/chronicle</code></h2>
+          <p><small>Press ↓ for the demo</small></p>
+          <ul style="font-size: 0.6em; text-align: left; line-height: 1.45">
+            <li>Orchestration gives you artifacts per <strong>run</strong>. Chronicle gives you evidence across <strong>sessions</strong> — every prompt, response, tool call, and modified file, indexed and queryable.</li>
+            <li>Local by default: session records in <code>~/.copilot/session-state/</code>, a SQLite index in <code>~/.copilot/session-store.db</code>.</li>
+            <li>Optional sync pulls sessions from <strong>CLI, VS Code, JetBrains, the cloud agent, code review and the Copilot app</strong> into one view on github.com.</li>
+            <li>The point for this workshop: it turns "prompt better" into <strong>feedback on your own habits</strong>, and writes the fix back into <code>.github/copilot-instructions.md</code>.</li>
+          </ul>
+          <p style="font-size: 0.3em">
+            <strong>Reference:</strong>
+            <a href="https://github.blog/changelog/2026-06-02-gain-insights-across-your-agent-sessions-with-chronicle/">Changelog — Insights across your agent sessions (GA, June 2026)</a>
+          </p>
+          <aside class="notes">
+            Frame Chronicle as the observability layer for your own usage rather than for a single pipeline
+            run. Session data is recorded locally in SQLite; syncing is optional and brings every surface
+            into one view. The payoff is personalized feedback that ends up committed as repository
+            instructions.
+          </aside>
+        </section>
+
+        <!-- PATTERN: Workflow / Process Arrows -->
+        <section>
+          <h3>What to show — four beats</h3>
+          <p style="font-size: 0.55em">Run <code>/chronicle reindex</code> first, then <code>/chronicle</code> for the picker:</p>
+          <div class="grid-2" style="gap: 10px">
+            <div class="card">
+              <i class="fas fa-clipboard-list"></i>
+              <h4>1. <code>standup</code></h4>
+              <p>"What did I do?" A standup report from recent work — 24 h by default, or <code>standup for the last 3 days</code>.</p>
+            </div>
+            <div class="card">
+              <i class="fas fa-magnifying-glass"></i>
+              <h4>2. <code>search</code></h4>
+              <p>"Where did I do it?" <code>search authentication</code> finds that chat from two weeks ago. Keyword, not semantic.</p>
+            </div>
+            <div class="card">
+              <i class="fas fa-lightbulb"></i>
+              <h4>3. <code>tips</code> / <code>cost tips</code></h4>
+              <p>3–5 recommendations from your real usage, plus token-spend analysis: prompt length, tool-call frequency.</p>
+            </div>
+            <div class="card">
+              <i class="fas fa-rotate-left"></i>
+              <h4>4. <code>improve</code></h4>
+              <p>Turns friction signals in this repo into proposed <code>copilot-instructions.md</code> edits — you accept or reject each one.</p>
+            </div>
+          </div>
+          <div class="highlight-box">
+            <p><strong>Say it before they ask:</strong> sessions are user-scoped and private by default. <code>"remoteExport": false</code> keeps everything local; on Business/Enterprise, sync needs the <em>"Store local sessions in the Cloud"</em> policy enabled first.</p>
+          </div>
+          <p style="font-size: 0.27em">
+            <strong>References:</strong>
+            <a href="https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli/chronicle">Docs — Using Copilot CLI session data</a> ·
+            <a href="https://docs.github.com/en/copilot/concepts/agents/copilot-cli/chronicle">Docs — About Copilot CLI session data</a> ·
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/docs/chronicle-showcase.md">Repo doc — chronicle-showcase.md</a>
+          </p>
+          <aside class="notes">
+            Demo on your own machine with a real week of history behind it — Chronicle reads what you
+            actually did, so a fresh clone has nothing to show. Skim the search and standup output
+            beforehand for anything client-confidential. Read one tip out loud and say whether you agree;
+            the honesty sells it better than a clean result. Finish on improve: show the proposed diff,
+            accept one item, reject one.
+          </aside>
+        </section>
+
+      </section>
+
+      <!-- PATTERN: Workshop / Exercise -->
+      <section>
+        <h2>Exercise for the students</h2>
+        <p style="font-size: 0.62em">Working from the pipeline in this repo, answer:</p>
+        <ol style="font-size: 0.55em; text-align: left; line-height: 1.5; max-width: 900px; margin: 20px auto">
+          <li>Which lines implement fan-out / fan-in?</li>
+          <li>Which lines implement the risk gate, and what happens when <code>risk</code> is missing or malformed?</li>
+          <li>Which lines enforce least privilege for the planning agents vs. the implementer?</li>
+          <li>Where is prompt-injection hardening applied, and what would you need to add to also defend against injections inside a <strong>linked file</strong> rather than the issue body itself?</li>
+          <li>If you added a fourth planning agent (say, <code>security_reviewer</code>), what has to change in <code>plan_merger</code>?</li>
+        </ol>
+        <p style="font-size: 0.27em">
+          <strong>References:</strong>
+          <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+          <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/docs/agent-orchestration.md">Repo doc — agent-orchestration.md</a>
+        </p>
+        <aside class="notes">
+          Let the students work directly from the workflow and repository documentation. Ask them to
+          identify the exact lines that implement each orchestration and governance mechanism.
+        </aside>
+      </section>
+
+      <!-- PATTERN: Vertical Group - Takeaways -->
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2>Takeaways</h2>
+          <ul style="font-size: 0.72em; text-align: left; line-height: 1.6">
+            <li>Orchestration is a <strong>workflow</strong> with state, branching, and error handling — not a chain of prompts.</li>
+            <li>Pick the pattern that matches the shape of the work: <strong>sequential outer, concurrent inner</strong> is a durable default for "analyze → decide → act."</li>
+            <li>Enforce the six-item accountability checklist through the platform (GitHub) — templates, required checks, environments, permissions — not through hope.</li>
+            <li>Agents change <strong>who performs work</strong>; humans still <strong>own the outcome</strong>.</li>
+          </ul>
+          <aside class="notes">
+            Close with the four takeaways from the issue notes: orchestration is a workflow, choose patterns
+            that match the work, enforce accountability through the platform, and keep human ownership.
+          </aside>
+        </section>
+
+    </div>
+  </div>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark or light theme">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/notes/notes.js"></script>
+  <script>
+// Reveal.js configuration and theme toggle — extracted from slides.html for reference by the slides-generator Copilot skill
+
+// Theme toggle
+const darkSheet = document.getElementById('theme-dark');
+const lightSheet = document.getElementById('theme-light');
+const toggleBtn = document.getElementById('themeToggle');
+let isDark = true;
+
+function setTheme(dark) {
+  isDark = dark;
+  darkSheet.disabled = !dark;
+  lightSheet.disabled = dark;
+  document.documentElement.classList.toggle('light-mode', !dark);
+  toggleBtn.innerHTML = dark
+    ? '<i class="fas fa-sun"></i>'
+    : '<i class="fas fa-moon"></i>';
+  try { localStorage.setItem('eficode-theme', dark ? 'dark' : 'light'); } catch (e) {}
+}
+
+setTheme(localStorage.getItem('eficode-theme') !== 'light');
+
+toggleBtn.addEventListener('click', () => setTheme(!isDark));
+
+// Keyboard shortcut: press T to toggle theme
+document.addEventListener('keydown', (e) => {
+  if (e.key === 't' || e.key === 'T') setTheme(!isDark);
+});
+
+Reveal.initialize({
+  hash: true,
+  transition: "slide",
+  controls: true,
+  progress: true,
+  center: true,
+  slideNumber: true,
+  keyboard: true,
+  overview: true,
+  touch: true,
+  loop: false,
+  fragments: true,
+  plugins: [RevealNotes],
+});
+  </script>
+</body>
+</html>

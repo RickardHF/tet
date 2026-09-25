@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Orchestration: Condensed | Eficode</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.css" />
+  <link id="theme-dark" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/theme/black.css" />
+  <link id="theme-light" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/theme/white.css" disabled />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+/*
+ * Reveal.js slide styles — Eficode brand theme
+ * for reference by the slides-generator Copilot skill
+ *
+ * Brand palette:
+ *   --eficode-yellow : #FFD100  (primary brand yellow)
+ *   --eficode-dark   : #1A1A1A  (near-black for text / logo background)
+ *   --eficode-orange : #E5A000  (warm accent, used in illustrations)
+ */
+
+/* ── Root variables ── */
+:root {
+  --eficode-yellow: #FFD100;
+  --eficode-dark: #1A1A1A;
+  --eficode-orange: #E5A000;
+  --eficode-gray: #dad9d9;
+
+  /* Accent = Eficode yellow (pops on dark backgrounds) */
+  --accent: #FFD100;
+  --accent-dim: rgba(255, 209, 0, 0.12);
+  --accent-mid: rgba(255, 209, 0, 0.30);
+  --accent-bright: rgba(255, 209, 0, 0.55);
+  --text-muted: rgba(255, 255, 255, 0.75);
+}
+
+/* ── Theme toggle button ── */
+.theme-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 100;
+  background: rgba(128, 128, 128, 0.3);
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  color: inherit;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.theme-toggle:hover {
+  background: rgba(128, 128, 128, 0.5);
+  transform: scale(1.1);
+}
+
+/* ── Light mode overrides ── */
+html.light-mode {
+  /* On light backgrounds use Eficode dark as the accent */
+  --accent: #1A1A1A;
+  --accent-dim: rgba(26, 26, 26, 0.08);
+  --accent-mid: rgba(26, 26, 26, 0.20);
+  --accent-bright: rgba(26, 26, 26, 0.40);
+  --text-muted: rgba(0, 0, 0, 0.60);
+}
+
+html.light-mode .card {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(0, 0, 0, 0.02));
+  border-color: var(--accent-mid);
+}
+
+html.light-mode .card:hover {
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.14), rgba(0, 0, 0, 0.04));
+  border-color: var(--accent-bright);
+  box-shadow: 0 10px 30px rgba(26, 26, 26, 0.12);
+}
+
+html.light-mode .card p,
+html.light-mode .demo-context {
+  color: var(--text-muted);
+}
+
+html.light-mode .agenda-list li {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(0, 0, 0, 0.02));
+  border-left-color: var(--eficode-yellow);
+}
+
+html.light-mode .code-block {
+  background: rgba(240, 240, 240, 0.9);
+  border-color: var(--accent-mid);
+  color: #24292e;
+}
+
+html.light-mode .code-block .comment {
+  color: #6a737d;
+}
+
+html.light-mode .code-block .keyword {
+  color: #d73a49;
+}
+
+html.light-mode .code-block .string {
+  color: #032f62;
+}
+
+html.light-mode .code-block .property {
+  color: #005cc5;
+}
+
+html.light-mode .file-tree {
+  background: rgba(240, 240, 240, 0.8);
+  border-color: var(--accent-mid);
+}
+
+html.light-mode .file-tree .folder {
+  color: var(--eficode-orange);
+}
+
+html.light-mode .file-tree .highlight {
+  color: #22863a;
+}
+
+html.light-mode .badge {
+  background: var(--eficode-yellow);
+  color: #1a1a1a;
+}
+
+html.light-mode .compare-table th {
+  background: linear-gradient(135deg, var(--eficode-yellow), rgba(0, 0, 0, 0.05));
+  border-color: var(--accent-bright);
+  color: var(--eficode-dark);
+}
+
+html.light-mode .compare-table td {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+html.light-mode .compare-table tr:hover td {
+  background: var(--accent-dim);
+}
+
+html.light-mode .highlight-box {
+  background: linear-gradient(135deg, rgba(255, 209, 0, 0.15), rgba(0, 0, 0, 0.02));
+  border-color: var(--eficode-yellow);
+}
+
+html.light-mode .workflow-step {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(0, 0, 0, 0.02));
+  border-color: var(--accent-mid);
+}
+
+html.light-mode .workflow-arrow {
+  color: var(--eficode-orange);
+}
+
+html.light-mode .demo-container video {
+  border-color: var(--accent-mid);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+html.light-mode .qa-icon {
+  color: var(--eficode-yellow);
+}
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  text-transform: none;
+}
+
+/* ── Card grids ── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 10px;
+  text-align: left;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  padding: 10px;
+  text-align: left;
+}
+
+.card {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(255, 255, 255, 0.05));
+  border-radius: 8px;
+  padding: 20px;
+  border: 2px solid var(--accent-mid);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.25), rgba(255, 255, 255, 0.1));
+  border-color: var(--accent-bright);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(74, 158, 255, 0.3);
+}
+
+.card i {
+  font-size: 1.6em;
+  display: block;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.card h4 {
+  margin: 8px 0 6px 0;
+  font-size: 0.75em;
+}
+
+.card p {
+  font-size: 0.55em;
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.card-center {
+  text-align: center;
+}
+
+/* ── Agenda list ── */
+.agenda-list {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.agenda-list li {
+  padding: 12px 20px;
+  margin: 8px 0;
+  background: linear-gradient(135deg, var(--accent-dim), rgba(255, 255, 255, 0.03));
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.agenda-list li i {
+  color: var(--accent);
+  width: 24px;
+  text-align: center;
+  padding-right: inherit;
+}
+
+.agenda-list li .time {
+  margin-left: auto;
+  font-size: 0.75em;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* ── Code blocks ── */
+.code-block {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--accent-mid);
+  border-radius: 8px;
+  padding: 18px 22px;
+  text-align: left;
+  font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: 0.48em;
+  line-height: 1.6;
+  overflow-x: auto;
+  margin: 15px 0;
+  white-space: pre;
+  word-wrap: normal;
+
+}
+
+.code-block .comment {
+  color: #6a9955;
+}
+
+.code-block .keyword {
+  color: #569cd6;
+}
+
+.code-block .string {
+  color: #ce9178;
+}
+
+.code-block .property {
+  color: #9cdcfe;
+}
+
+/* ── File tree ── */
+.file-tree {
+  text-align: left;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.55em;
+  line-height: 1.8;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--accent-mid);
+  border-radius: 8px;
+  padding: 18px 25px;
+  display: inline-block;
+}
+
+.file-tree .folder {
+  color: var(--accent);
+}
+
+.file-tree .file {
+  color: #e0e0e0;
+}
+
+.file-tree .highlight {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* ── Video slide ── */
+.demo-container {
+  text-align: center;
+}
+
+.demo-container video {
+  max-width: 85%;
+  max-height: 55vh;
+  border-radius: 8px;
+  border: 2px solid var(--accent-mid);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.demo-context {
+  font-size: 0.6em;
+  color: var(--text-muted);
+  margin-top: 12px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Comparison table ── */
+.compare-table {
+  font-size: 0.55em;
+  width: 90%;
+  margin: 15px auto;
+  border-collapse: collapse;
+}
+
+.compare-table th {
+  background: linear-gradient(135deg, var(--accent-mid), rgba(255, 255, 255, 0.1));
+  padding: 12px 15px;
+  border: 1px solid var(--accent-bright);
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.compare-table td {
+  padding: 10px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.compare-table tr:hover td {
+  background: var(--accent-dim);
+}
+
+/* ── Workflow arrows ── */
+.workflow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 25px 0;
+}
+
+.workflow-step {
+  background: linear-gradient(135deg, var(--accent-dim), rgba(255, 255, 255, 0.05));
+  border: 2px solid var(--accent-mid);
+  border-radius: 8px;
+  padding: 15px 20px;
+  text-align: center;
+  min-width: 120px;
+}
+
+.workflow-step i {
+  display: block;
+  font-size: 1.3em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.workflow-step span {
+  font-size: 0.65em;
+}
+
+.workflow-arrow {
+  font-size: 1.5em;
+  color: var(--accent);
+}
+
+/* ── Badge / pill ── */
+.badge {
+  display: inline-block;
+  background: var(--accent-mid);
+  color: #fff;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.55em;
+  margin: 3px;
+}
+
+/* ── QA slide ── */
+.qa-icon {
+  font-size: 4em;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+
+/* ── Key point highlight ── */
+.highlight-box {
+  background: linear-gradient(135deg, rgba(255, 209, 0, 0.18), rgba(255, 255, 255, 0.04));
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 20px 25px;
+  margin: 20px auto;
+  max-width: 800px;
+  text-align: center;
+}
+
+.highlight-box p {
+  font-size: 0.8em;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════════
+   Eficode Title Slide
+   Uses data-background-color="#FFD100" on the <section>.
+   Layout: logo pinned top-left, title text bottom-left,
+   illustration filling the right half.
+   ══════════════════════════════════════════════════════ */
+
+.title-slide-layout {
+  background-color: var(--eficode-yellow);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.title-slide-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 30px 50px 50px;
+  position: relative;
+}
+
+.eficode-logo {
+  position: sticky;
+  top: 20px;
+  left: 50px;
+  height: 65px;
+  width: fit-content;
+}
+
+.title-heading {
+  font-size: 1.5em !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  color: var(--eficode-dark) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 0 30px 0 !important;
+  text-align: left !important;
+}
+
+.reveal .title-series {
+  font-size: 0.65em !important;
+  font-weight: 700 !important;
+  color: var(--eficode-dark) !important;
+  margin: 0 0 6px 0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+.reveal .title-url {
+  font-size: 0.55em !important;
+  font-weight: 400 !important;
+  color: var(--eficode-dark) !important;
+  margin: 0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+.title-slide-right {
+  background: var(--eficode-gray);
+  display: flex;
+  clip-path: polygon(27% 0, 100% 0, 100% 100%, 43% 100%, 0 65%);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.title-illustration {
+  max-height: 90%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* ── Closing Slide ── */
+.closing-slide-layout {
+  display: grid;
+  grid-template-columns: 56% 44%;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.closing-slide-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 30px 40px 50px;
+  text-align: left;
+  position: relative;
+  z-index: 1;
+}
+
+.closing-thank-you {
+  font-size: 1.6em !important;
+  font-weight: 900 !important;
+  text-align: left !important;
+  margin: 0 !important;
+  text-transform: none !important;
+}
+
+.closing-slide-left .contact-list {
+  list-style: none;
+  padding: 50px 0px 50px 0px;
+  margin: 0px 0px 0px 35px;
+}
+
+.closing-slide-left .contact-list li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.65em;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.closing-slide-left .contact-list li i {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  background: rgba(0, 0, 0, 0.10);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+}
+
+.closing-cta {
+  background: var(--eficode-yellow);
+  color: var(--eficode-dark);
+  padding: 5px 15px;
+  border-radius: 4px;
+  font-size: 0.4em;
+  font-weight: 300;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.closing-cta strong {
+  font-weight: 800;
+}
+
+.closing-slide-right {
+  position: relative;
+  overflow: hidden;
+  background: var(--eficode-yellow);
+  clip-path: polygon(27% 0, 100% 0, 100% 100%, 43% 100%, 0 65%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.closing-slide-right .title-illustration {
+  max-height: 82%;
+  max-width: 90%;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+.closing-eficode-logo {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  height: 52px;
+  width: auto;
+  z-index: 2;
+}
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- PATTERN: Eficode Title Slide -->
+      <section data-background-color="#FFD100">
+        <div class="title-slide-layout">
+          <div class="title-slide-left">
+            <img src="assets/eficode-logo.png" alt="Eficode" class="eficode-logo" />
+            <h1 class="title-heading">Agent Orchestration</h1>
+            <p class="title-series">Rickard Hole Falck &amp; Ahmed Magdy | Eficode</p>
+          </div>
+          <div class="title-slide-right">
+            <img src="assets/title-illustration.png" alt="" class="title-illustration" />
+          </div>
+        </div>
+        <aside class="notes">
+          Six-slide briefing on agent orchestration for engineers who will read and extend
+          plan-implement.yml. Introduce it as a fast walkthrough of how this repo does orchestration.
+        </aside>
+      </section>
+
+      <!-- PATTERN: Content Slide -->
+      <section>
+        <h2 style="font-size: 1.15em; margin: 0 0 10px">Orchestration: what it is and why bother</h2>
+        <ul style="font-size: 0.51em; text-align: left; line-height: 1.42">
+          <li><strong>What it is:</strong> the layer that decides <em>when</em> multiple agents run, <em>how</em> they hand off, and <em>how</em> their outputs are checked. Without it, "multi-agent" is a chain of prompts with no state, no audit, no owner.</li>
+          <li><strong>Why not one megaprompt:</strong> specialization beats a generalist (planner ≠ risk reviewer ≠ implementer); each role gets its own inputs, outputs, and permissions; each role leaves a diffable artifact you can review after the fact.</li>
+          <li><strong>Two flavors, both needed:</strong>
+            <ul>
+              <li><strong>Agent orchestration</strong> — coordinates <em>roles</em> (who does the work).</li>
+              <li><strong>Model orchestration</strong> — coordinates <em>models</em> within a role (which brain runs the work).</li>
+            </ul>
+          </li>
+          <li><strong>The cost you pay:</strong> coordination. <strong>The payoff:</strong> observability, least-privilege-per-job, safe autonomy, and an audit trail by construction.</li>
+          <li><strong>Framing for the rest of the deck:</strong> the orchestrator is the platform, agents are contributors, and humans still own the outcome.</li>
+        </ul>
+        <p style="font-size: 0.22em; margin: 6px">
+          <strong>References:</strong>
+          <a href="https://github.com/resources/articles/what-is-ai-agent-orchestration">Article — What is AI agent orchestration?</a> ·
+          <a href="https://github.blog/ai-and-ml/github-copilot/project-hydrafusion-frontier-quality-via-multi-model-orchestration/">Article — Project HydraFusion: frontier quality via multi-model orchestration</a> ·
+          <a href="https://learn.microsoft.com/en-us/training/modules/multi-agent-systems-orchestration/">Learn — Multi-agent systems orchestration</a> ·
+          <a href="https://learn.microsoft.com/en-us/training/modules/foundations-agentic-ai/">Learn — Foundations of agentic AI on GitHub</a>
+        </p>
+        <aside class="notes">
+          Orchestration decides when agents run, how they hand work off, and how outputs are checked.
+          Distinguish agent orchestration, which coordinates roles, from model orchestration, which
+          coordinates models within a role. The platform orchestrates, agents contribute, and humans own the outcome.
+        </aside>
+      </section>
+
+      <!-- PATTERN: Agenda -->
+      <section>
+        <h2 style="font-size: 1.1em; margin: 0 0 8px">Orchestration patterns and how to pick one</h2>
+        <p style="font-size: 0.45em; margin: 5px">Five patterns worth knowing:</p>
+        <table class="compare-table" style="font-size: 0.4em; margin: 8px auto">
+          <thead>
+            <tr><th>Pattern</th><th>Mechanism</th><th>Good for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Sequential</strong></td><td>Output of A → input of B, in a fixed order</td><td>Pipelines: plan → verify → act</td></tr>
+            <tr><td><strong>Concurrent</strong></td><td>Same task fanned out to N agents; results aggregated</td><td>Independent analyses, ensemble decisions</td></tr>
+            <tr><td><strong>Group chat</strong></td><td>Agents talk in a shared thread coordinated by a manager</td><td>Maker/checker, brainstorming with humans in-loop</td></tr>
+            <tr><td><strong>Handoff</strong></td><td>Each agent decides whether to keep the task or transfer control</td><td>Dynamic routing when the right expert isn't known</td></tr>
+            <tr><td><strong>Magentic</strong></td><td>A manager builds and refines a ledger of subgoals as it goes</td><td>Open-ended tasks with no predetermined plan</td></tr>
+          </tbody>
+        </table>
+        <ul style="font-size: 0.38em; text-align: left; line-height: 1.35; margin: 7px 0">
+          <li><strong>Rule of thumb:</strong> sequential when order is fixed, concurrent when work is independent; reach for group-chat / handoff / Magentic only when the extra flexibility earns its complexity.</li>
+          <li><strong>Durable default for "analyze → decide → act":</strong> sequential outer, concurrent inner — a.k.a. fan-out / fan-in with a deterministic merge step (not another LLM call).</li>
+        </ul>
+        <p style="font-size: 0.22em; margin: 3px">
+          <strong>References:</strong>
+          <a href="https://learn.microsoft.com/en-us/training/modules/agent-orchestration-patterns/">Learn — Agent orchestration patterns</a> ·
+          <a href="https://learn.microsoft.com/en-us/training/modules/multi-agent-systems-orchestration/3-agent-orchestration-github-workflows">Learn — Agent orchestration in GitHub workflows</a>
+        </p>
+        <aside class="notes">
+          Cover the five orchestration patterns, then apply the rule of thumb from the issue comment.
+          For analyze, decide, and act workflows, the durable default is sequential outer flow with
+          concurrent inner analysis and a deterministic fan-in.
+        </aside>
+      </section>
+
+      <!-- PATTERN: Vertical Group - Why Orchestrate -->
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2 style="font-size: 1.05em; margin: 0 0 5px">Reference pipeline: from labeled issue to reviewed PR</h2>
+          <div class="workflow" style="margin: 2px 0">
+            <div class="workflow-step" style="padding: 5px 10px; min-width: 260px"><span>issues.labeled <code>copilot:plan-and-implement</code></span></div>
+            <span class="workflow-arrow">→</span>
+            <div class="workflow-step" style="padding: 5px 10px; min-width: 100px"><span>prepare</span></div>
+          </div>
+          <div style="font-size: 0.7em; color: var(--accent); margin: 0">↓</div>
+          <div class="grid-2" style="max-width: 620px; margin: 0 auto; gap: 8px; padding: 2px">
+            <div class="card card-center" style="padding: 5px"><h4 style="font-size: 0.5em; margin: 2px">spec_analyzer</h4><p style="font-size: 0.34em">plan schema</p></div>
+            <div class="card card-center" style="padding: 5px"><h4 style="font-size: 0.5em; margin: 2px">risk_reviewer</h4><p style="font-size: 0.34em">{risk}</p></div>
+          </div>
+          <div style="font-size: 0.7em; color: var(--accent); margin: 0">↓</div>
+          <div class="workflow-step" style="max-width: 190px; margin: 0 auto; padding: 5px 10px"><span>plan_merger</span></div>
+          <div style="font-size: 0.7em; color: var(--accent); margin: 0">↓</div>
+          <div class="grid-2" style="max-width: 620px; margin: 0 auto; gap: 8px; padding: 2px">
+            <div class="card card-center" style="padding: 5px"><h4 style="font-size: 0.48em; margin: 2px">risk = low</h4><p style="font-size: 0.34em">implement_auto</p></div>
+            <div class="card card-center" style="padding: 5px"><h4 style="font-size: 0.48em; margin: 2px">risk = medium/high</h4><p style="font-size: 0.34em">implement (<code>approval-required</code>)</p></div>
+          </div>
+          <div style="font-size: 0.7em; color: var(--accent); margin: 0">↓</div>
+          <div class="workflow" style="margin: 2px 0">
+            <div class="workflow-step" style="padding: 5px 10px"><span>Draft PR → ready for review</span></div>
+            <span class="workflow-arrow">→</span>
+            <div class="workflow-step" style="padding: 5px 10px"><span>Plan Gate check</span></div>
+            <span class="workflow-arrow">→</span>
+            <div class="workflow-step" style="padding: 5px 10px"><span>Human review &amp; merge</span></div>
+          </div>
+          <ul style="font-size: 0.29em; text-align: left; line-height: 1.25; margin: 4px 0">
+            <li><strong>Shape:</strong> sequential outer (<code>prepare</code> → planning → merge → implement) plus concurrent inner (<code>spec_analyzer</code> + <code>risk_reviewer</code>), joined deterministically by <code>plan_merger</code>.</li>
+            <li><strong>Role specialization:</strong> <code>spec_analyzer</code> emits the plan schema, <code>risk_reviewer</code> emits <code>{risk}</code>, <code>implementer</code> only acts once the merged plan is approved — narrow, typed jobs each.</li>
+            <li><strong>Every arrow is an artifact handoff or a policy decision</strong> (risk gate, approval environment, Plan Gate) — nothing important is left to freeform chat.</li>
+          </ul>
+          <p style="font-size: 0.26em; margin: 2px">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/docs/agent-orchestration.md">Repo doc — agent-orchestration.md</a>
+          </p>
+          <aside class="notes">
+            Follow the reference pipeline from the labeled issue through prepare, concurrent planning,
+            deterministic merge, risk-based implementation, the draft pull request, Plan Gate, and human review.
+          </aside>
+        </section>
+
+      <!-- PATTERN: Content Slide -->
+      <section>
+        <h2 style="font-size: 0.95em; margin: 0 0 8px">Model orchestration with HydraFusion: many models per role (Preview)</h2>
+        <ul style="font-size: 0.44em; text-align: left; line-height: 1.35; margin: 6px 0">
+          <li><strong>What it is:</strong> picking or combining <em>models</em> within a single agent's turn — as opposed to routing between agent <em>roles</em>.</li>
+          <li><strong>Why bother:</strong> no single model is best at everything. Routing recovers <strong>frontier quality</strong> without paying frontier price / latency on every call; ensembling can beat the best single model on hard tasks.</li>
+          <li><strong>Common shapes:</strong>
+            <ul>
+              <li><strong>Router</strong> — a lightweight classifier picks one model per request (cheap for easy tasks, capable for hard ones).</li>
+              <li><strong>Ensemble / fusion</strong> — run several models in parallel and merge their candidates (voting, verifier-picks-best, or a fuser LLM that composes a final answer).</li>
+              <li><strong>Escalation</strong> — try a cheap model first; escalate to a stronger one on low confidence or failed verification.</li>
+            </ul>
+          </li>
+          <li><strong>Relationship to agent orchestration:</strong> agent orchestration decides <em>who</em> does the work; model orchestration decides <em>which brain</em> that agent uses. Governance (plan, risk gate, permissions, audit trail) is agnostic to which model produced the output — that's what makes model swaps and A/B rollouts safe.</li>
+          <li><strong>Example — Project HydraFusion:</strong> GitHub's approach ensembles several frontier models per Copilot request and uses a fuser to combine candidates; internal evals show quality above the best single model at controlled cost and latency.</li>
+        </ul>
+        <p style="font-size: 0.22em; margin: 4px">
+          <strong>References:</strong>
+          <a href="https://github.blog/ai-and-ml/github-copilot/project-hydrafusion-frontier-quality-via-multi-model-orchestration/">Article — Project HydraFusion: frontier quality via multi-model orchestration</a> ·
+          <a href="https://github.com/resources/articles/what-is-ai-agent-orchestration">Article — What is AI agent orchestration?</a>
+        </p>
+        <aside class="notes">
+          Model orchestration chooses or combines models within one agent role. Cover routing, fusion,
+          and escalation, then explain that the same governance controls remain valid when models are swapped
+          or combined. HydraFusion is GitHub's example of frontier-model candidates combined by a fuser.
+        </aside>
+      </section>
+
+      <!-- PATTERN: Vertical Group - Reference Pipeline -->
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2 style="font-size: 1.15em; margin: 0 0 10px">Plan-first governance</h2>
+          <ul style="font-size: 0.57em; text-align: left; line-height: 1.5">
+            <li><strong>Single, linkable task contract.</strong> Every agent run needs a stable, human-authored input it can be traced back to — not an ad-hoc prompt. Reproducibility, audit, and accountability all depend on this.</li>
+            <li><strong>Structured, machine-checked plans.</strong> Force plans into a fixed schema (goal, scope, steps, risks, rollback) and validate before anything downstream trusts them. Structure is the substrate every later control reads.</li>
+            <li><strong>Promote the plan template to a required check.</strong> A PR template is a suggestion; a required status check is a contract — and it prevents template drift over time. Read the PR body as data, never as executable string.</li>
+            <li><strong>Anti-pattern avoided:</strong> "trust me" PRs where intent lives only in the diff.</li>
+          </ul>
+          <div class="highlight-box" style="padding: 9px 13px; margin: 9px auto">
+            <p style="font-size: 0.43em"><strong>In this repo:</strong> <code>prepare</code> uploads <code>issue.md</code>; <code>spec_analyzer</code> emits the plan JSON and <code>jq</code> validates it; <code>open-agent-pr</code> renders it into the PR body via <code>plan-template.md</code>; <code>plan-gate.yml</code> runs on every PR to <code>main</code> and fails if any required section is missing.</p>
+          </div>
+          <p style="font-size: 0.22em; margin: 3px">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/design-agent-architecture-integration/3-inputs-outputs-success-criteria">Learn — Inputs, outputs, and success criteria</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/design-agent-architecture-integration/5-pull-request-governance-controls">Learn — Pull request governance controls</a>
+          </p>
+          <aside class="notes">
+            Plan-first governance starts from one linkable task contract, produces a structured and
+            validated plan, renders that plan into the pull request, and enforces the required sections.
+          </aside>
+        </section>
+
+      <!-- PATTERN: Vertical Group - Plan-first Governance -->
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2 style="font-size: 1.1em; margin: 0 0 8px">Autonomy, safety, and least privilege</h2>
+          <ul style="font-size: 0.53em; text-align: left; line-height: 1.43; margin: 8px 0">
+            <li><strong>Risk-based autonomy.</strong> Let a machine-readable <code>risk</code> signal drive routing; <strong>default to caution</strong> on unknown or malformed values. Low-risk work flows automatically; higher risk gets a human before merge.</li>
+            <li><strong>Approval gates through the platform.</strong> Reuse the same environment-based gating you already trust for deployments — don't invent an agent-only approval story. Gate the <em>act</em> stage, not the <em>think</em> stage.</li>
+            <li><strong>Least privilege, per job.</strong> Default to no permissions; grant <code>write</code> only to the specific job that needs it, and only at the stage where it needs it. "Think" agents read; "act" agents write, and only after approval.</li>
+            <li><strong>Layered prompt-injection defenses.</strong> Assume any single layer will be bypassed: structural separation of untrusted content, read-only tool allowlists for planning agents, and output schema validation before trusting anything downstream.</li>
+          </ul>
+          <div class="highlight-box" style="padding: 8px 12px; margin: 8px auto">
+            <p style="font-size: 0.39em"><strong>In this repo:</strong> <code>plan_merger</code> normalizes <code>risk</code> and defaults to <code>high</code>; <code>implement</code> runs under <code>environment: approval-required</code> with <code>if: risk != 'low'</code>; the workflow header sets <code>permissions: {}</code> and each job opts in; <code>copilot-json-task</code> wraps issue text in <code>&lt;ISSUE&gt;</code> tags, restricts Copilot to <code>view,glob,grep</code>, and re-parses output with <code>jq</code>.</p>
+          </div>
+          <p style="font-size: 0.2em; margin: 2px">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/governance-guardrails-operations/2-define-risk-based-autonomy">Learn — Define risk-based autonomy</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/design-agent-architecture-integration/6-reliable-workflows">Learn — Reliable workflows</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/governance-guardrails-operations/9-summary">Learn — Governance, guardrails, and operations</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/aaai-design-advanced-prompt-production-agents/3-implement-prompt-injection-defenses">Learn — Implement prompt injection defenses</a>
+          </p>
+          <aside class="notes">
+            Risk controls autonomy; platform environments gate action; permissions separate think from
+            act; and prompt-injection defenses combine structural separation, read-only tools, and output validation.
+          </aside>
+        </section>
+
+      <!-- PATTERN: Vertical Group - Safety -->
+        <!-- PATTERN: Vertical Group Intro -->
+        <section>
+          <h2 style="font-size: 1.05em; margin: 0 0 6px">Accountability, audit, and takeaways</h2>
+          <p style="font-size: 0.38em; margin: 4px"><strong>Six-item accountability checklist</strong> for any healthy agent workflow:</p>
+          <table class="compare-table" style="font-size: 0.31em; width: 96%; margin: 5px auto">
+            <thead>
+              <tr><th>Requirement</th><th>Generic mechanism</th><th>Where it lives in this repo</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Stated goal</td><td>Linkable task contract</td><td>Issue linked from PR title/body</td></tr>
+              <tr><td>Inspectable plan</td><td>Structured plan + rendered PR body</td><td><code>plan.json</code> artifact + PR body</td></tr>
+              <tr><td>Bounded changeset</td><td>Deterministic branch + draft PR + concurrency</td><td><code>agent-plan/issue-&lt;n&gt;-&lt;run_id&gt;</code></td></tr>
+              <tr><td>Automated evidence</td><td>Per-stage artifacts + run URL</td><td><code>issue</code>, <code>spec</code>, <code>risk</code>, <code>plan</code> uploaded</td></tr>
+              <tr><td>Human judgment</td><td>Approval environment + required checks</td><td><code>approval-required</code> env + Plan Gate + PR review</td></tr>
+              <tr><td>Clear outcome</td><td>Merge, revert, or escalate</td><td>Merge, revert of agent commit, or re-label</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.38em; margin: 5px"><strong>Takeaways</strong></p>
+          <ul style="font-size: 0.34em; text-align: left; line-height: 1.3; margin: 4px 0">
+            <li>Orchestration is a <strong>workflow with state</strong>, not a chain of prompts.</li>
+            <li><strong>Sequential outer, concurrent inner</strong> is a durable default for "analyze → decide → act."</li>
+            <li><strong>Agent orchestration picks the role; model orchestration picks the brain.</strong> Governance covers both — the same plan, risk gate, and audit trail work regardless of which model produced the output.</li>
+            <li>Enforce the checklist through the <strong>platform</strong> — templates, required checks, environments, permissions — not through hope.</li>
+            <li>Agents change <strong>who performs work</strong>; humans still <strong>own the outcome</strong>.</li>
+          </ul>
+          <p style="font-size: 0.22em; margin: 2px">
+            <strong>References:</strong>
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/docs/agent-orchestration.md">Repo doc — agent-orchestration.md</a> ·
+            <a href="https://github.com/EficodeDemoOrg/Agent-RepoTest/blob/main/.github/workflows/plan-implement.yml">Workflow — plan-implement.yml</a> ·
+            <a href="https://github.com/resources/articles/what-is-ai-agent-orchestration">Article — What is AI agent orchestration?</a> ·
+            <a href="https://github.blog/ai-and-ml/github-copilot/project-hydrafusion-frontier-quality-via-multi-model-orchestration/">Article — Project HydraFusion: frontier quality via multi-model orchestration</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/multi-agent-systems-orchestration/">Learn — Multi-agent systems orchestration</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/design-agent-architecture-integration/">Learn — Design agent architecture &amp; integration</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/governance-guardrails-operations/">Learn — Governance, guardrails, and operations</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/foundations-agentic-ai/">Learn — Foundations of agentic AI on GitHub</a> ·
+            <a href="https://learn.microsoft.com/en-us/training/modules/agent-orchestration-patterns/">Learn — Agent orchestration patterns</a>
+          </p>
+          <aside class="notes">
+            Use the six-item checklist to connect accountability requirements to concrete repository
+            mechanisms. Close with the four takeaways exactly as stated in the condensed issue comment.
+          </aside>
+        </section>
+
+    </div>
+  </div>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark or light theme">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/notes/notes.js"></script>
+  <script>
+// Reveal.js configuration and theme toggle — extracted from slides.html for reference by the slides-generator Copilot skill
+
+// Theme toggle
+const darkSheet = document.getElementById('theme-dark');
+const lightSheet = document.getElementById('theme-light');
+const toggleBtn = document.getElementById('themeToggle');
+let isDark = true;
+
+function setTheme(dark) {
+  isDark = dark;
+  darkSheet.disabled = !dark;
+  lightSheet.disabled = dark;
+  document.documentElement.classList.toggle('light-mode', !dark);
+  toggleBtn.innerHTML = dark
+    ? '<i class="fas fa-sun"></i>'
+    : '<i class="fas fa-moon"></i>';
+  try { localStorage.setItem('eficode-theme', dark ? 'dark' : 'light'); } catch (e) {}
+}
+
+setTheme(localStorage.getItem('eficode-theme') !== 'light');
+
+toggleBtn.addEventListener('click', () => setTheme(!isDark));
+
+// Keyboard shortcut: press T to toggle theme
+document.addEventListener('keydown', (e) => {
+  if (e.key === 't' || e.key === 'T') setTheme(!isDark);
+});
+
+Reveal.initialize({
+  hash: true,
+  transition: "slide",
+  controls: true,
+  progress: true,
+  center: true,
+  slideNumber: true,
+  keyboard: true,
+  overview: true,
+  touch: true,
+  loop: false,
+  fragments: true,
+  plugins: [RevealNotes],
+});
+  </script>
+</body>
+</html>
