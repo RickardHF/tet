@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="620" height="560" role="img" aria-label="Agent &amp; Skill Evaluation Results">
-  <title>Agent &amp; Skill Evaluation Results — 2026-09-08</title>
+  <title>Agent &amp; Skill Evaluation Results — 2026-09-25</title>
   <defs>
     <linearGradient id="headerGrad" x1="0" x2="1" y1="0" y2="0">
       <stop offset="0%" stop-color="#1a2236"/>
@@ -16,7 +16,7 @@
   <!-- header -->
   <rect x="0" y="0" width="620" height="56" fill="url(#headerGrad)" />
   <text x="20" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#f0f6fc">Agent &amp; Skill Evaluation</text>
-  <text x="20" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11" fill="#8b949e">2026-09-08</text>
+  <text x="20" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11" fill="#8b949e">2026-09-25</text>
 
   <!-- column headers -->
   <text x="320" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="10" fill="#8b949e">SCORE</text>
@@ -52,9 +52,9 @@
   <!-- bar bg -->
   <rect x="320" y="142" width="190" height="18" rx="4" fill="#0d1117" />
   <!-- bar fill -->
-  <rect x="320" y="142" width="133" height="18" rx="4" fill="#2b9e7a" opacity="0.85" />
+  <rect x="320" y="142" width="114" height="18" rx="4" fill="#e09a25" opacity="0.85" />
   <!-- score label -->
-  <text x="520" y="156" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="bold" fill="#2b9e7a" text-anchor="middle">7/10</text>
+  <text x="520" y="156" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="bold" fill="#e09a25" text-anchor="middle">6/10</text>
 
   <!-- row 3 -->
   <rect x="0" y="170" width="620" height="38" fill="#232a3a" />
@@ -74,9 +74,9 @@
   <!-- bar bg -->
   <rect x="320" y="218" width="190" height="18" rx="4" fill="#0d1117" />
   <!-- bar fill -->
-  <rect x="320" y="218" width="76" height="18" rx="4" fill="#e05252" opacity="0.85" />
+  <rect x="320" y="218" width="57" height="18" rx="4" fill="#e05252" opacity="0.85" />
   <!-- score label -->
-  <text x="520" y="232" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="bold" fill="#e05252" text-anchor="middle">4/10</text>
+  <text x="520" y="232" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="bold" fill="#e05252" text-anchor="middle">3/10</text>
 
   <!-- row 5 -->
   <rect x="0" y="246" width="620" height="38" fill="#232a3a" />
@@ -140,20 +140,20 @@
   <!-- bar bg -->
   <rect x="320" y="446" width="190" height="18" rx="4" fill="#0d1117" />
   <!-- bar fill -->
-  <rect x="320" y="446" width="152" height="18" rx="4" fill="#2b9e7a" opacity="0.85" />
+  <rect x="320" y="446" width="114" height="18" rx="4" fill="#e09a25" opacity="0.85" />
   <!-- score label -->
-  <text x="520" y="460" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="bold" fill="#2b9e7a" text-anchor="middle">8/10</text>
+  <text x="520" y="460" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="bold" fill="#e09a25" text-anchor="middle">6/10</text>
 
   <!-- row 11 -->
   <rect x="0" y="474" width="620" height="38" fill="#232a3a" />
   <!-- name -->
-  <text x="20" y="498" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" fill="#c9d1d9">.github/skills/broken-greeting/SKILL.…</text>
+  <text x="20" y="498" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" fill="#c9d1d9">.github/skills/broken-script-conventi…</text>
   <!-- bar bg -->
   <rect x="320" y="484" width="190" height="18" rx="4" fill="#0d1117" />
   <!-- bar fill -->
-  <rect x="320" y="484" width="57" height="18" rx="4" fill="#e05252" opacity="0.85" />
+  <rect x="320" y="484" width="38" height="18" rx="4" fill="#e05252" opacity="0.85" />
   <!-- score label -->
-  <text x="520" y="498" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="bold" fill="#e05252" text-anchor="middle">3/10</text>
+  <text x="520" y="498" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="bold" fill="#e05252" text-anchor="middle">2/10</text>
 
   <!-- footer / average -->
   <rect x="0" y="512" width="620" height="48" fill="#161b22" />
@@ -162,9 +162,9 @@
   <!-- avg bar bg -->
   <rect x="320" y="524" width="190" height="24" rx="4" fill="#0d1117" />
   <!-- avg bar fill -->
-  <rect x="320" y="524" width="95" height="24" rx="4" fill="#e09a25" opacity="0.9" />
+  <rect x="320" y="524" width="87" height="24" rx="4" fill="#e09a25" opacity="0.9" />
   <!-- avg label -->
-  <text x="520" y="541" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" font-weight="bold" fill="#e09a25" text-anchor="middle">5/10</text>
+  <text x="520" y="541" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" font-weight="bold" fill="#e09a25" text-anchor="middle">4.6/10</text>
 
   </g>
 
