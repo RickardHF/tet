@@ -93,3 +93,17 @@ See the [evaluator documentation](./docs/evaluator.md) for usage, arguments, eva
 
 The `src/` folder currently contains the description, functional requirements, and technical
 requirements for the workshop's example application.
+
+## Game development
+
+The browser game scaffold is isolated in `game/` so it does not replace the workshop's root
+redirect. Requires Node.js 20 or newer.
+
+```sh
+npm install
+npm run dev
+```
+
+Use `npm run build` to create the production bundle in `game/dist/`, or `npm run preview` to
+preview that bundle locally. Run `npm test` for the unit tests and `npm run typecheck` for the
+strict TypeScript check.
